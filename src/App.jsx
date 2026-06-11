@@ -106,7 +106,7 @@ export default function App() {
     // メンバー
     const membersRef = ref(db, "members");
     const unsubMembers = onValue(membersRef, snap => {
-      if (snap.exists()) setMembers(Object.values(snap.val()));
+      if (snap.exists()) Date.now()
       else set(membersRef, Object.fromEntries(DEFAULT_MEMBERS.map(m => [m.id, m])));
     });
     // メッセージ
@@ -140,7 +140,13 @@ export default function App() {
     set(ref(db, `vehicleStatuses/${vehicleId}`), status);
   }
   function fbSetMembers(newMembers) {
-    set(ref(db, "members"), Object.fromEntries(newMembers.map(m => [m.id, m])));
+    const data = Object.fromEntries(newMembers.map(m => [
+      m.id, { ...m, vehicleId: m.vehicleId === null ? "none" : m.vehicleId }
+    ]));
+    set(ref(db, "members"), data);
+  }
+  function toMember(m) {
+    return { ...m, vehicleId: m.vehicleId === "none" ? null : m.vehicleId };
   }
   function fbPushMessage(msg) {
     push(ref(db, "messages"), { ...msg, ts: Date.now() });
